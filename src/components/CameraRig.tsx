@@ -1,0 +1,89 @@
+import { useEffect, useRef } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
+import { Vector3 } from 'three'
+import { useStore } from '../store'
+import { bodyById } from '../data/bodies'
+import { getBodyObject } from '../bodyRegistry'
+
+const OVERVIEW_POS = new Vector3(0, 48, 118)
+const OVERVIEW_TARGET = new Vector3(0, 0, 0)
+const UP = new Vector3(0, 1, 0)
+
+/** Flies the camera to a focused body (or back to the overview) on selection
+ *  change, then releases control to OrbitControls so the user can freely
+ *  drag-to-orbit and scroll-to-zoom. */
+export function CameraRig() {
+  const selectedId = useStore((s) => s.selectedId)
+  const controls = useThree((s) => s.controls) as
+    | { target: Vector3; update: () => void }
+    | undefined
+
+  const flying = useRef(false)
+  const desiredPos = useRef(new Vector3())
+  const desiredTarget = useRef(new Vector3())
+  const worldPos = useRef(new Vector3())
+  const radial = useRef(new Vector3())
+  const tangent = useRef(new Vector3())
+  const offset = useRef(new Vector3())
+
+  // Kick off a fly-to whenever the selection changes.
+  useEffect(() => {
+    flying.current = true
+  }, [selectedId])
+
+  useFrame((state, delta) => {
+    // When not transitioning, stay out of the way so the user controls freely.
+    if (!flying.current) return
+
+    if (selectedId) {
+      const body = bodyById(selectedId)
+      if (!body) {
+        flying.current = false
+        return
+      }
+      const obj = getBodyObject(selectedId)
+      if (obj) obj.getWorldPosition(worldPos.current)
+      else worldPos.current.set(0, 0, 0)
+
+      desiredTarget.current.copy(worldPos.current)
+
+      const dist = body.radius * 3.6 + 5
+
+      // Frame the body from above and to the side (along its orbit) rather than
+      // from directly behind it, so the Sun stays out of the background.
+      radial.current.copy(worldPos.current)
+      if (radial.current.lengthSq() < 0.001) {
+        // The Sun itself (at origin) — just view it head-on and slightly above.
+        offset.current.set(0, 0.35, 1).normalize()
+      } else {
+        radial.current.normalize()
+        tangent.current.crossVectors(UP, radial.current).normalize()
+        offset.current
+          .copy(tangent.current)
+          .multiplyScalar(0.8)
+          .addScaledVector(UP, 0.65)
+          .addScaledVector(radial.current, 0.2)
+          .normalize()
+      }
+      desiredPos.current.copy(worldPos.current).addScaledVector(offset.current, dist)
+    } else {
+      desiredPos.current.copy(OVERVIEW_POS)
+      desiredTarget.current.copy(OVERVIEW_TARGET)
+    }
+
+    // Frame-rate independent smoothing toward the desired framing.
+    const k = 1 - Math.pow(0.0016, delta)
+    state.camera.position.lerp(desiredPos.current, k)
+    if (controls) {
+      controls.target.lerp(desiredTarget.current, k)
+      controls.update()
+    }
+
+    // Arrived — release the camera back to the user.
+    if (state.camera.position.distanceTo(desiredPos.current) < 0.4) {
+      flying.current = false
+    }
+  })
+
+  return null
+}
