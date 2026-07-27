@@ -7,6 +7,8 @@ import { LoadingScreen } from './components/LoadingScreen'
 import { JumpMenu } from './components/JumpMenu'
 import { Tour } from './components/Tour'
 import { KeyboardNav } from './components/KeyboardNav'
+import { DateScrubber } from './components/DateScrubber'
+import { ComparePanel } from './components/ComparePanel'
 import { useStore } from './store'
 
 function Loader() {
@@ -51,8 +53,11 @@ export default function App() {
   const clear = useStore((s) => s.clear)
   const realScale = useStore((s) => s.realScale)
   const today = useStore((s) => s.today)
+  const follow = useStore((s) => s.follow)
   const toggleRealScale = useStore((s) => s.toggleRealScale)
   const toggleToday = useStore((s) => s.toggleToday)
+  const toggleFollow = useStore((s) => s.toggleFollow)
+  const openCompare = useStore((s) => s.openCompare)
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#05060a]">
@@ -119,8 +124,35 @@ export default function App() {
         <div className="pointer-events-auto flex flex-wrap gap-2">
           <JumpMenu />
           <Tour />
+          <button
+            onClick={openCompare}
+            title="Compare two worlds side by side"
+            className="flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-sm text-white/90 ring-1 ring-white/10 backdrop-blur transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-md hover:shadow-sky-400/15 hover:ring-white/25 active:translate-y-0"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="8" cy="12" r="5.5" />
+              <circle cx="16" cy="12" r="5.5" />
+            </svg>
+            Compare
+          </button>
+          {selectedId && (
+            <ToggleChip
+              active={follow}
+              onClick={toggleFollow}
+              label="Follow"
+              title="Keep the camera locked on this planet as it orbits"
+              icon={
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" strokeLinecap="round" />
+                </svg>
+              }
+            />
+          )}
         </div>
       </div>
+
+      <DateScrubber />
 
       <ErrorBoundary resetKey={selectedId} fallback={null}>
         <Suspense fallback={<Loader />}>
@@ -128,6 +160,7 @@ export default function App() {
         </Suspense>
       </ErrorBoundary>
 
+      <ComparePanel />
       <LoadingScreen />
     </div>
   )

@@ -579,8 +579,12 @@ export const bodyById = (id: string): Body | undefined => bodies.find((b) => b.i
 // propagated from its J2000 mean longitude by its orbital period. Good enough
 // to reproduce today's rough planetary alignment.
 const J2000 = Date.UTC(2000, 0, 1, 12, 0, 0)
-export const currentMeanLongitude = (body: Body): number | null => {
+
+/** Mean longitude (degrees) for a body `offsetDays` from today (0 = now). */
+export const meanLongitudeAt = (body: Body, offsetDays = 0): number | null => {
   if (body.meanLongitude == null || body.orbitalPeriodDays == null) return null
-  const days = (Date.now() - J2000) / 86_400_000
+  const days = (Date.now() - J2000) / 86_400_000 + offsetDays
   return body.meanLongitude + 360 * (days / body.orbitalPeriodDays)
 }
+
+export const currentMeanLongitude = (body: Body): number | null => meanLongitudeAt(body, 0)

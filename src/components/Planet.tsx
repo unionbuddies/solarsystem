@@ -11,10 +11,11 @@ import {
   Vector3,
   type Group,
   type Mesh,
+  type MeshBasicMaterial,
   type Texture,
 } from 'three'
 import type { Body, Moon as MoonData } from '../data/bodies'
-import { REAL_SCALE_K, currentMeanLongitude } from '../data/bodies'
+import { REAL_SCALE_K, meanLongitudeAt } from '../data/bodies'
 import { useStore } from '../store'
 import { registerBody, unregisterBody } from '../bodyRegistry'
 import { textureUrl } from '../textures'
@@ -63,10 +64,18 @@ function EarthExtras({ radius }: { radius: number }) {
   const night = useTexture(textureUrl('earth_night.jpg'))
   const cloudRef = useRef<Mesh>(null)
   const nightRef = useRef<Mesh>(null)
+  const auroraN = useRef<Mesh>(null)
+  const auroraS = useRef<Mesh>(null)
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (cloudRef.current) cloudRef.current.rotation.y += 0.06 * delta
     if (nightRef.current) nightRef.current.rotation.y += 0.05 * delta
+    // Shimmering aurora flicker.
+    const t = state.clock.elapsedTime
+    const flick = Math.max(0.08, 0.24 + 0.14 * Math.sin(t * 2.3) + 0.07 * Math.sin(t * 5.9))
+    for (const a of [auroraN.current, auroraS.current]) {
+      if (a) (a.material as MeshBasicMaterial).opacity = flick
+    }
   })
 
   return (
@@ -85,6 +94,15 @@ function EarthExtras({ radius }: { radius: number }) {
       <mesh>
         <sphereGeometry args={[radius * 1.07, 48, 48]} />
         <meshBasicMaterial color="#5a9bff" transparent opacity={0.14} side={BackSide} blending={AdditiveBlending} depthWrite={false} />
+      </mesh>
+      {/* Auroral ovals glowing at the poles */}
+      <mesh ref={auroraN} position={[0, radius * 0.84, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[radius * 0.5, radius * 0.055, 12, 48]} />
+        <meshBasicMaterial color="#5affb4" transparent opacity={0.25} blending={AdditiveBlending} depthWrite={false} />
+      </mesh>
+      <mesh ref={auroraS} position={[0, -radius * 0.84, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[radius * 0.5, radius * 0.055, 12, 48]} />
+        <meshBasicMaterial color="#5affb4" transparent opacity={0.25} blending={AdditiveBlending} depthWrite={false} />
       </mesh>
     </>
   )
@@ -135,9 +153,6 @@ export function Planet({ body }: { body: Body }) {
   const select = useStore((s) => s.select)
   const setHovered = useStore((s) => s.setHovered)
   const hoveredId = useStore((s) => s.hoveredId)
-  const paused = useStore((s) => s.paused)
-  const realScale = useStore((s) => s.realScale)
-  const today = useStore((s) => s.today)
 
   const hovered = hoveredId === body.id
   const isEarth = body.id === 'earth'
@@ -163,18 +178,24 @@ export function Planet({ body }: { body: Body }) {
     return () => unregisterBody(body.id)
   }, [body.id])
 
-  // Seed the starting position — either an artistic spread or today's real alignment.
+  // Seed the artistic starting position once.
   useEffect(() => {
-    if (today) {
-      const L = currentMeanLongitude(body)
-      theta.current = L != null ? MathUtils.degToRad(L) - orbit.node : startAngle(body.id)
-    } else {
-      theta.current = startAngle(body.id)
-    }
-  }, [body, today, orbit.node])
+    theta.current = startAngle(body.id)
+  }, [body.id])
 
   useFrame((_, delta) => {
-    if (!paused) theta.current += body.orbitSpeed * delta
+    // Read motion-related state live so scrubbing the date doesn't re-render.
+    const st = useStore.getState()
+
+    if (st.today) {
+      // Freeze to the real alignment for the scrubbed date.
+      const L = meanLongitudeAt(body, st.dateOffsetDays)
+      if (L != null) theta.current = MathUtils.degToRad(L) - orbit.node
+    } else if (!st.paused || st.follow) {
+      // Orbit normally; follow mode keeps things moving while a planet is focused.
+      theta.current += body.orbitSpeed * delta
+    }
+
     if (holderRef.current) {
       holderRef.current.position.set(
         orbit.a * Math.cos(theta.current) - orbit.c,
@@ -185,7 +206,7 @@ export function Planet({ body }: { body: Body }) {
     if (meshRef.current) meshRef.current.rotation.y += body.spinSpeed * delta
 
     // Smoothly morph the body toward its true relative size (moons excluded).
-    const target = realScale ? realRatio : 1
+    const target = st.realScale ? realRatio : 1
     scaleVal.current = MathUtils.damp(scaleVal.current, target, 4, delta)
     if (scaleRef.current) scaleRef.current.scale.setScalar(scaleVal.current)
   })

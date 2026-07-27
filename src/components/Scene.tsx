@@ -6,6 +6,7 @@ import { Sun } from './Sun'
 import { Planet } from './Planet'
 import { Orbits } from './Orbits'
 import { AsteroidBelt } from './AsteroidBelt'
+import { Meteors } from './Meteors'
 import { CameraRig } from './CameraRig'
 
 /** All the 3D content that lives inside the main <Canvas>. */
@@ -22,6 +23,7 @@ export function Scene() {
           <Planet key={b.id} body={b} />
         ))}
       <AsteroidBelt />
+      <Meteors />
 
       <CameraRig />
       <OrbitControls

@@ -31,6 +31,9 @@ export function CameraRig() {
   const radial = useRef(new Vector3())
   const tangent = useRef(new Vector3())
   const offset = useRef(new Vector3())
+  const followVec = useRef(new Vector3())
+  const followHas = useRef(false)
+  const tmpDelta = useRef(new Vector3())
 
   // Kick off a fly-to whenever the selection changes.
   useEffect(() => {
@@ -64,8 +67,30 @@ export function CameraRig() {
   }, [selectedId, camera, size.width, size.height])
 
   useFrame((state, delta) => {
-    // When not transitioning, stay out of the way so the user controls freely.
-    if (!flying.current) return
+    if (!flying.current) {
+      // Follow mode: translate the whole rig by the planet's per-frame movement
+      // so it stays framed while the user can still orbit/zoom around it.
+      if (useStore.getState().follow && selectedId) {
+        const obj = getBodyObject(selectedId)
+        if (obj && controls) {
+          obj.getWorldPosition(worldPos.current)
+          if (followHas.current) {
+            tmpDelta.current.subVectors(worldPos.current, followVec.current)
+            state.camera.position.add(tmpDelta.current)
+            controls.target.add(tmpDelta.current)
+            controls.update()
+          }
+          followVec.current.copy(worldPos.current)
+          followHas.current = true
+        }
+      } else {
+        followHas.current = false
+      }
+      return
+    }
+
+    // Reset follow tracking during a fly-to so it re-initialises cleanly after.
+    followHas.current = false
 
     if (selectedId) {
       const body = bodyById(selectedId)
