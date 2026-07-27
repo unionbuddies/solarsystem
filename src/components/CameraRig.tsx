@@ -10,6 +10,8 @@ const OVERVIEW_TARGET = new Vector3(0, 0, 0)
 const UP = new Vector3(0, 1, 0)
 // Matches the info panel's max width (Tailwind max-w-[440px]).
 const PANEL_WIDTH = 440
+// Below this width the panel becomes a bottom sheet (Tailwind `sm`).
+const MOBILE_BREAKPOINT = 640
 
 /** Flies the camera to a focused body (or back to the overview) on selection
  *  change, then releases control to OrbitControls so the user can freely
@@ -35,17 +37,26 @@ export function CameraRig() {
     flying.current = true
   }, [selectedId])
 
-  // Shift the camera lens so the focused body centers in the space left of the
-  // info panel, instead of behind it. Cleared (recentred) in the overview.
+  // Shift the camera lens so the focused body centers in the free space, not
+  // behind the info panel: left of a desktop sidebar, or above a mobile sheet.
   useEffect(() => {
     if (!(camera instanceof PerspectiveCamera)) return
-    const panel = Math.min(PANEL_WIDTH, size.width)
-    const visible = size.width - panel
-    if (selectedId && visible > 200) {
-      // Positive X offset pushes rendered content left by panel/2 pixels.
-      camera.setViewOffset(size.width, size.height, panel / 2, 0, size.width, size.height)
-    } else {
+    if (!selectedId) {
       camera.clearViewOffset()
+      return
+    }
+    if (size.width < MOBILE_BREAKPOINT) {
+      // Bottom sheet — push content up so the body sits above it.
+      const sheet = size.height * 0.62
+      camera.setViewOffset(size.width, size.height, 0, sheet / 2, size.width, size.height)
+    } else {
+      // Right sidebar — push content left by half the panel width.
+      const panel = Math.min(PANEL_WIDTH, size.width)
+      if (size.width - panel > 200) {
+        camera.setViewOffset(size.width, size.height, panel / 2, 0, size.width, size.height)
+      } else {
+        camera.clearViewOffset()
+      }
     }
     return () => {
       if (camera instanceof PerspectiveCamera) camera.clearViewOffset()

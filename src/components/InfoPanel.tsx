@@ -178,12 +178,16 @@ export function InfoPanel() {
 
   return (
     <div
-      className={`pointer-events-none fixed inset-y-0 right-0 z-20 w-full max-w-[440px] transition-transform duration-500 ease-out ${
-        body ? 'translate-x-0' : 'translate-x-full'
+      className={`pointer-events-none fixed z-20 inset-x-0 bottom-0 max-h-[64vh] w-full transition-transform duration-500 ease-out sm:inset-x-auto sm:inset-y-0 sm:right-0 sm:max-h-none sm:w-[440px] ${
+        body
+          ? 'translate-y-0 sm:translate-x-0'
+          : 'translate-y-full sm:translate-y-0 sm:translate-x-full'
       }`}
     >
       {body && (
-        <div className="panel-scroll pointer-events-auto h-full overflow-y-auto border-l border-white/10 bg-[#0a0d16]/80 px-6 py-6 backdrop-blur-xl">
+        <div className="panel-scroll pointer-events-auto h-full overflow-y-auto rounded-t-2xl border-t border-white/10 bg-[#0a0d16]/85 px-6 pb-6 pt-4 backdrop-blur-xl sm:rounded-none sm:border-l sm:border-t-0 sm:py-6">
+          {/* grab handle (mobile only) */}
+          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/20 sm:hidden" />
           <div className="flex items-start justify-between gap-3">
             <div>
               <span className="inline-block rounded-full bg-sky-500/15 px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide text-sky-300 ring-1 ring-sky-400/20">

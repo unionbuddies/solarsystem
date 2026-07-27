@@ -11,12 +11,16 @@ interface AppState {
   realScale: boolean
   /** Seed planet positions to their real approximate alignment for today. */
   today: boolean
+  /** Whether the narrated guided tour is running. */
+  tour: boolean
 
   select: (id: string) => void
   clear: () => void
   setHovered: (id: string | null) => void
   toggleRealScale: () => void
   toggleToday: () => void
+  startTour: () => void
+  endTour: () => void
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -25,12 +29,15 @@ export const useStore = create<AppState>((set) => ({
   paused: false,
   realScale: false,
   today: false,
+  tour: false,
 
   select: (id) => set({ selectedId: id, paused: true }),
   clear: () => set({ selectedId: null, paused: false }),
   setHovered: (id) => set({ hoveredId: id }),
   toggleRealScale: () => set((s) => ({ realScale: !s.realScale })),
   toggleToday: () => set((s) => ({ today: !s.today })),
+  startTour: () => set({ tour: true }),
+  endTour: () => set({ tour: false, selectedId: null, paused: false }),
 }))
 
 // Dev-only hook so the scene selection can be driven/inspected from the console.
