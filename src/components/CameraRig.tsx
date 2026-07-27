@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Vector3 } from 'three'
+import { PerspectiveCamera, Vector3 } from 'three'
 import { useStore } from '../store'
 import { bodyById } from '../data/bodies'
 import { getBodyObject } from '../bodyRegistry'
@@ -8,6 +8,8 @@ import { getBodyObject } from '../bodyRegistry'
 const OVERVIEW_POS = new Vector3(0, 48, 118)
 const OVERVIEW_TARGET = new Vector3(0, 0, 0)
 const UP = new Vector3(0, 1, 0)
+// Matches the info panel's max width (Tailwind max-w-[440px]).
+const PANEL_WIDTH = 440
 
 /** Flies the camera to a focused body (or back to the overview) on selection
  *  change, then releases control to OrbitControls so the user can freely
@@ -17,6 +19,8 @@ export function CameraRig() {
   const controls = useThree((s) => s.controls) as
     | { target: Vector3; update: () => void }
     | undefined
+  const camera = useThree((s) => s.camera)
+  const size = useThree((s) => s.size)
 
   const flying = useRef(false)
   const desiredPos = useRef(new Vector3())
@@ -30,6 +34,23 @@ export function CameraRig() {
   useEffect(() => {
     flying.current = true
   }, [selectedId])
+
+  // Shift the camera lens so the focused body centers in the space left of the
+  // info panel, instead of behind it. Cleared (recentred) in the overview.
+  useEffect(() => {
+    if (!(camera instanceof PerspectiveCamera)) return
+    const panel = Math.min(PANEL_WIDTH, size.width)
+    const visible = size.width - panel
+    if (selectedId && visible > 200) {
+      // Positive X offset pushes rendered content left by panel/2 pixels.
+      camera.setViewOffset(size.width, size.height, panel / 2, 0, size.width, size.height)
+    } else {
+      camera.clearViewOffset()
+    }
+    return () => {
+      if (camera instanceof PerspectiveCamera) camera.clearViewOffset()
+    }
+  }, [selectedId, camera, size.width, size.height])
 
   useFrame((state, delta) => {
     // When not transitioning, stay out of the way so the user controls freely.
@@ -47,7 +68,12 @@ export function CameraRig() {
 
       desiredTarget.current.copy(worldPos.current)
 
-      const dist = body.radius * 3.6 + 5
+      // Frame every body to a similar apparent size by scaling the distance to
+      // its extent (rings included), so small planets fill the view just like
+      // the gas giants. Also drop the min zoom so you can get close to them.
+      const extent = body.ring ? body.ring.outer : body.radius
+      const dist = extent * 3.4
+      if (controls) controls.minDistance = Math.max(1.5, extent * 1.2)
 
       // Frame the body from above and to the side (along its orbit) rather than
       // from directly behind it, so the Sun stays out of the background.
@@ -69,6 +95,7 @@ export function CameraRig() {
     } else {
       desiredPos.current.copy(OVERVIEW_POS)
       desiredTarget.current.copy(OVERVIEW_TARGET)
+      if (controls) controls.minDistance = 10
     }
 
     // Frame-rate independent smoothing toward the desired framing.
