@@ -29,6 +29,7 @@ export function Scene() {
       <OrbitControls
         makeDefault
         enablePan={false}
+        zoomToCursor
         minDistance={10}
         maxDistance={320}
         zoomSpeed={0.8}
