@@ -16,8 +16,8 @@ const PANEL_WIDTH = 440
  *  drag-to-orbit and scroll-to-zoom. */
 export function CameraRig() {
   const selectedId = useStore((s) => s.selectedId)
-  const controls = useThree((s) => s.controls) as
-    | { target: Vector3; update: () => void }
+  const controls = useThree((s) => s.controls) as unknown as
+    | { target: Vector3; update: () => void; minDistance: number }
     | undefined
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)

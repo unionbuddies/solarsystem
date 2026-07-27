@@ -17,6 +17,21 @@ export interface Ring {
   color: string
 }
 
+export interface Moon {
+  name: string
+  /** Visual radius in scene units. */
+  radius: number
+  /** Orbit radius from the planet's center, in scene units. */
+  distance: number
+  /** Revolution speed in radians/second (sign sets direction). */
+  speed: number
+  color: string
+}
+
+// Scale factor mapping real planet diameters (km) to scene units for the
+// "true relative size" view. Chosen so Jupiter lands near its illustrative size.
+export const REAL_SCALE_K = 3.2 / 139820
+
 export interface Body {
   id: string
   name: string
@@ -38,6 +53,16 @@ export interface Body {
   spinSpeed: number
   axialTilt: number
   color: string
+
+  /** Real equatorial diameter in km — powers the true-scale view & comparisons. */
+  diameterKm: number
+  /** Mean distance from the Sun in AU (0 for the Sun). */
+  distanceAu: number
+  /** Mean longitude at the J2000 epoch, in degrees — for "today's positions". */
+  meanLongitude?: number
+  /** Orbital period in days — for "today's positions". */
+  orbitalPeriodDays?: number
+  moons?: Moon[]
   emissive?: boolean
   ring?: Ring
 
@@ -83,6 +108,8 @@ export const bodies: Body[] = [
     axialTilt: 7.25,
     color: '#ffb642',
     emissive: true,
+    diameterKm: 1391000,
+    distanceAu: 0,
     stats: {
       diameter: '1,391,000 km (≈109 Earths)',
       mass: '1.989 × 10³⁰ kg (333,000 Earths)',
@@ -128,6 +155,10 @@ export const bodies: Body[] = [
     eccentricity: 0.2,
     inclination: 7,
     node: 48,
+    diameterKm: 4879,
+    distanceAu: 0.39,
+    meanLongitude: 252.25,
+    orbitalPeriodDays: 87.969,
     spinSpeed: 0.02,
     axialTilt: 0.034,
     color: '#8c8c94',
@@ -175,6 +206,10 @@ export const bodies: Body[] = [
     eccentricity: 0.1,
     inclination: 4,
     node: 77,
+    diameterKm: 12104,
+    distanceAu: 0.72,
+    meanLongitude: 181.98,
+    orbitalPeriodDays: 224.701,
     spinSpeed: -0.005,
     axialTilt: 177.4,
     color: '#e6cca0',
@@ -221,6 +256,11 @@ export const bodies: Body[] = [
     eccentricity: 0.12,
     inclination: 2,
     node: 0,
+    diameterKm: 12742,
+    distanceAu: 1.0,
+    meanLongitude: 100.46,
+    orbitalPeriodDays: 365.256,
+    moons: [{ name: 'Moon', radius: 0.34, distance: 2.4, speed: 0.5, color: '#cfcfcf' }],
     spinSpeed: 0.05,
     axialTilt: 23.44,
     color: '#4f7cff',
@@ -269,6 +309,14 @@ export const bodies: Body[] = [
     eccentricity: 0.16,
     inclination: 5,
     node: 49,
+    diameterKm: 6779,
+    distanceAu: 1.52,
+    meanLongitude: 355.43,
+    orbitalPeriodDays: 686.98,
+    moons: [
+      { name: 'Phobos', radius: 0.06, distance: 1.5, speed: 1.3, color: '#9a8c7a' },
+      { name: 'Deimos', radius: 0.05, distance: 2.0, speed: 0.85, color: '#a89a86' },
+    ],
     spinSpeed: 0.048,
     axialTilt: 25.19,
     color: '#c1440e',
@@ -315,6 +363,16 @@ export const bodies: Body[] = [
     eccentricity: 0.1,
     inclination: 2,
     node: 100,
+    diameterKm: 139820,
+    distanceAu: 5.2,
+    meanLongitude: 34.35,
+    orbitalPeriodDays: 4332.59,
+    moons: [
+      { name: 'Io', radius: 0.16, distance: 3.4, speed: 0.9, color: '#e6d24a' },
+      { name: 'Europa', radius: 0.14, distance: 4.1, speed: 0.72, color: '#d9c9a8' },
+      { name: 'Ganymede', radius: 0.2, distance: 4.9, speed: 0.55, color: '#9a8f7a' },
+      { name: 'Callisto', radius: 0.18, distance: 5.8, speed: 0.42, color: '#6f6455' },
+    ],
     spinSpeed: 0.11,
     axialTilt: 3.13,
     color: '#d8ca9d',
@@ -362,6 +420,16 @@ export const bodies: Body[] = [
     eccentricity: 0.12,
     inclination: 4,
     node: 114,
+    diameterKm: 116460,
+    distanceAu: 9.54,
+    meanLongitude: 49.94,
+    orbitalPeriodDays: 10759.22,
+    moons: [
+      { name: 'Enceladus', radius: 0.07, distance: 4.8, speed: 0.7, color: '#f2f2f2' },
+      { name: 'Rhea', radius: 0.1, distance: 5.2, speed: 0.58, color: '#b8b0a0' },
+      { name: 'Titan', radius: 0.2, distance: 6.0, speed: 0.46, color: '#d89a4a' },
+      { name: 'Iapetus', radius: 0.1, distance: 7.1, speed: 0.34, color: '#8a7a5a' },
+    ],
     spinSpeed: 0.1,
     axialTilt: 26.73,
     color: '#e3d6a8',
@@ -409,6 +477,15 @@ export const bodies: Body[] = [
     eccentricity: 0.1,
     inclination: 3,
     node: 74,
+    diameterKm: 50724,
+    distanceAu: 19.19,
+    meanLongitude: 313.23,
+    orbitalPeriodDays: 30688.5,
+    moons: [
+      { name: 'Miranda', radius: 0.06, distance: 2.4, speed: 0.7, color: '#b6c5c8' },
+      { name: 'Titania', radius: 0.11, distance: 2.9, speed: 0.52, color: '#c2ced0' },
+      { name: 'Oberon', radius: 0.1, distance: 3.4, speed: 0.42, color: '#a7b0b2' },
+    ],
     spinSpeed: -0.06,
     axialTilt: 97.77,
     color: '#9fe3e8',
@@ -456,6 +533,11 @@ export const bodies: Body[] = [
     eccentricity: 0.09,
     inclination: 3,
     node: 131,
+    diameterKm: 49244,
+    distanceAu: 30.07,
+    meanLongitude: 304.88,
+    orbitalPeriodDays: 60182,
+    moons: [{ name: 'Triton', radius: 0.14, distance: 2.7, speed: -0.5, color: '#cdd6d0' }],
     spinSpeed: 0.06,
     axialTilt: 28.32,
     color: '#3b5bdb',
@@ -492,3 +574,13 @@ export const bodies: Body[] = [
 ]
 
 export const bodyById = (id: string): Body | undefined => bodies.find((b) => b.id === id)
+
+// Approximate heliocentric mean longitude (degrees) for a planet right now,
+// propagated from its J2000 mean longitude by its orbital period. Good enough
+// to reproduce today's rough planetary alignment.
+const J2000 = Date.UTC(2000, 0, 1, 12, 0, 0)
+export const currentMeanLongitude = (body: Body): number | null => {
+  if (body.meanLongitude == null || body.orbitalPeriodDays == null) return null
+  const days = (Date.now() - J2000) / 86_400_000
+  return body.meanLongitude + 360 * (days / body.orbitalPeriodDays)
+}

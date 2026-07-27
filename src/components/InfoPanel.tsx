@@ -22,6 +22,63 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
+function Comparison({ body }: { body: Body }) {
+  const earth = bodyById('earth')!
+  const ratio = body.diameterKm / earth.diameterKm
+  const EARTH_PX = 18
+  const planetPx = Math.max(6, Math.min(112, EARTH_PX * ratio))
+  const ratioLabel = ratio >= 10 ? `${Math.round(ratio)}× Earth` : `${ratio.toFixed(ratio >= 1 ? 1 : 2)}× Earth`
+
+  const AU_MAX = 31
+  const auPct = Math.min(100, (body.distanceAu / AU_MAX) * 100)
+  const earthPct = (1 / AU_MAX) * 100
+
+  return (
+    <Section title="Size & distance">
+      <div className="rounded-lg bg-white/5 p-3 ring-1 ring-white/10">
+        <div className="flex items-end gap-5">
+          <div className="flex flex-col items-center gap-1">
+            <span className="rounded-full bg-sky-400/70" style={{ width: EARTH_PX, height: EARTH_PX }} />
+            <span className="text-[10px] text-white/40">Earth</span>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <span
+              className="rounded-full bg-gradient-to-br from-white/80 to-white/25"
+              style={{ width: planetPx, height: planetPx }}
+            />
+            <span className="text-[10px] text-white/60">{body.name}</span>
+          </div>
+        </div>
+        <div className="mt-2 text-xs text-white/60">
+          Diameter {body.diameterKm.toLocaleString()} km · <span className="text-white/90">{ratioLabel}</span>
+        </div>
+      </div>
+
+      <div className="mt-2 rounded-lg bg-white/5 p-3 ring-1 ring-white/10">
+        <div className="mb-2 text-xs text-white/60">
+          Distance from Sun · <span className="text-white/90">{body.distanceAu} AU</span>
+        </div>
+        <div className="relative h-2 rounded-full bg-gradient-to-r from-amber-500/40 to-sky-500/20">
+          {body.id !== 'earth' && body.distanceAu > 0 && (
+            <span
+              className="absolute top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-300/70"
+              style={{ left: `${earthPct}%` }}
+            />
+          )}
+          <span
+            className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white ring-2 ring-sky-400"
+            style={{ left: `${auPct}%` }}
+          />
+        </div>
+        <div className="mt-1 flex justify-between text-[10px] text-white/30">
+          <span>Sun</span>
+          <span>30 AU</span>
+        </div>
+      </div>
+    </Section>
+  )
+}
+
 function PanelBody({ body }: { body: Body }) {
   return (
     <>
@@ -69,6 +126,8 @@ function PanelBody({ body }: { body: Body }) {
           <Stat label="Moons" value={body.stats.moons} />
         </div>
       </Section>
+
+      <Comparison body={body} />
 
       {/* Temperature */}
       <Section title="Temperature">

@@ -13,13 +13,44 @@ function Loader() {
   )
 }
 
+function ToggleChip({
+  active,
+  onClick,
+  label,
+  title,
+}: {
+  active: boolean
+  onClick: () => void
+  label: string
+  title: string
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      className={`rounded-full px-4 py-2 text-xs font-medium ring-1 backdrop-blur transition ${
+        active
+          ? 'bg-sky-500/25 text-sky-100 ring-sky-400/40'
+          : 'bg-white/5 text-white/60 ring-white/10 hover:bg-white/10'
+      }`}
+    >
+      {label}
+    </button>
+  )
+}
+
 export default function App() {
   const selectedId = useStore((s) => s.selectedId)
   const clear = useStore((s) => s.clear)
+  const realScale = useStore((s) => s.realScale)
+  const today = useStore((s) => s.today)
+  const toggleRealScale = useStore((s) => s.toggleRealScale)
+  const toggleToday = useStore((s) => s.toggleToday)
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#05060a]">
       <Canvas
+        shadows
         camera={{ position: [0, 48, 118], fov: 45, near: 0.1, far: 2000 }}
         dpr={[1, 2]}
         onPointerMissed={() => clear()}
@@ -50,6 +81,26 @@ export default function App() {
           </div>
         )}
       </div>
+
+      {/* View toggles (overview only) */}
+      {!selectedId && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center p-5">
+          <div className="pointer-events-auto flex gap-2">
+            <ToggleChip
+              active={realScale}
+              onClick={toggleRealScale}
+              label="True scale"
+              title="Show planets at their real relative sizes"
+            />
+            <ToggleChip
+              active={today}
+              onClick={toggleToday}
+              label="Today's sky"
+              title="Position the planets at their real alignment for today"
+            />
+          </div>
+        </div>
+      )}
 
       <ErrorBoundary resetKey={selectedId} fallback={null}>
         <Suspense fallback={<Loader />}>
