@@ -77,7 +77,7 @@ export default function App() {
         {selectedId ? (
           <button
             onClick={clear}
-            className="pointer-events-auto flex w-fit items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-sm text-white/80 ring-1 ring-white/10 backdrop-blur transition hover:bg-white/10"
+            className="pointer-events-auto flex w-fit items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-sm text-white/90 ring-1 ring-white/10 backdrop-blur transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-md hover:shadow-sky-400/15 hover:ring-white/25 active:translate-y-0"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />

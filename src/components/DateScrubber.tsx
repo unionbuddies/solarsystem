@@ -21,7 +21,7 @@ export function DateScrubber() {
   })
 
   const btn =
-    'flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white/5 text-lg leading-none text-white/70 ring-1 ring-white/10 transition hover:bg-white/10'
+    'flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white/5 text-lg leading-none text-white/70 ring-1 ring-white/10 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-md hover:shadow-sky-400/15 hover:ring-white/25 active:translate-y-0'
 
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center p-4 sm:p-6">
@@ -54,7 +54,7 @@ export function DateScrubber() {
         <div className="mt-2 flex items-center justify-center text-[11px]">
           <button
             onClick={() => setDateOffset(0)}
-            className="rounded-full px-2 py-0.5 text-sky-300 transition hover:bg-white/10"
+            className="rounded-full px-2 py-0.5 text-sky-300 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-md hover:shadow-sky-400/15 active:translate-y-0"
           >
             Jump to today
           </button>

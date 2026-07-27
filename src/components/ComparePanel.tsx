@@ -80,7 +80,7 @@ export function ComparePanel() {
           <button
             onClick={close}
             aria-label="Close"
-            className="rounded-full bg-white/5 p-2 text-white/60 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white"
+            className="rounded-full bg-white/5 p-2 text-white/60 ring-1 ring-white/10 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-white/10 hover:text-white hover:shadow-md hover:shadow-sky-400/15 hover:ring-white/25 active:translate-y-0"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
