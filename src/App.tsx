@@ -53,10 +53,8 @@ export default function App() {
   const clear = useStore((s) => s.clear)
   const realScale = useStore((s) => s.realScale)
   const today = useStore((s) => s.today)
-  const follow = useStore((s) => s.follow)
   const toggleRealScale = useStore((s) => s.toggleRealScale)
   const toggleToday = useStore((s) => s.toggleToday)
-  const toggleFollow = useStore((s) => s.toggleFollow)
   const openCompare = useStore((s) => s.openCompare)
 
   return (
@@ -135,20 +133,6 @@ export default function App() {
             </svg>
             Compare
           </button>
-          {selectedId && (
-            <ToggleChip
-              active={follow}
-              onClick={toggleFollow}
-              label="Follow"
-              title="Keep the camera locked on this planet as it orbits"
-              icon={
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" strokeLinecap="round" />
-                </svg>
-              }
-            />
-          )}
         </div>
       </div>
 

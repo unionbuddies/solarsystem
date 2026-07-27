@@ -51,15 +51,13 @@ export function DateScrubber() {
           </button>
         </div>
 
-        <div className="mt-2 flex items-center justify-between text-[11px] text-white/40">
-          <span>−1 yr</span>
+        <div className="mt-2 flex items-center justify-center text-[11px]">
           <button
             onClick={() => setDateOffset(0)}
             className="rounded-full px-2 py-0.5 text-sky-300 transition hover:bg-white/10"
           >
             Jump to today
           </button>
-          <span>+1 yr</span>
         </div>
       </div>
     </div>

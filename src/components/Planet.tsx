@@ -191,8 +191,7 @@ export function Planet({ body }: { body: Body }) {
       // Freeze to the real alignment for the scrubbed date.
       const L = meanLongitudeAt(body, st.dateOffsetDays)
       if (L != null) theta.current = MathUtils.degToRad(L) - orbit.node
-    } else if (!st.paused || st.follow) {
-      // Orbit normally; follow mode keeps things moving while a planet is focused.
+    } else if (!st.paused) {
       theta.current += body.orbitSpeed * delta
     }
 

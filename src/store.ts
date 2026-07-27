@@ -13,8 +13,6 @@ interface AppState {
   today: boolean
   /** Days offset from today for the date scrubber (0 = today). */
   dateOffsetDays: number
-  /** Keep the camera locked on a selected planet as it orbits. */
-  follow: boolean
   /** Whether the narrated guided tour is running. */
   tour: boolean
 
@@ -29,7 +27,6 @@ interface AppState {
   toggleRealScale: () => void
   toggleToday: () => void
   setDateOffset: (days: number) => void
-  toggleFollow: () => void
   startTour: () => void
   endTour: () => void
   openCompare: () => void
@@ -45,7 +42,6 @@ export const useStore = create<AppState>((set) => ({
   realScale: false,
   today: false,
   dateOffsetDays: 0,
-  follow: false,
   tour: false,
   compareOpen: false,
   compareA: 'earth',
@@ -57,7 +53,6 @@ export const useStore = create<AppState>((set) => ({
   toggleRealScale: () => set((s) => ({ realScale: !s.realScale })),
   toggleToday: () => set((s) => ({ today: !s.today, dateOffsetDays: 0 })),
   setDateOffset: (days) => set({ dateOffsetDays: days }),
-  toggleFollow: () => set((s) => ({ follow: !s.follow })),
   startTour: () => set({ tour: true }),
   endTour: () => set({ tour: false, selectedId: null, paused: false }),
   openCompare: () =>
