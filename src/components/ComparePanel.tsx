@@ -38,6 +38,14 @@ function BodyColumn({
   )
 }
 
+// Nicely rounded count for the "how many fit inside" line.
+function formatCount(n: number): string {
+  if (n < 10) return (Math.round(n * 10) / 10).toString()
+  if (n < 1000) return Math.round(n).toLocaleString()
+  const mag = Math.pow(10, Math.floor(Math.log10(n)) - 1)
+  return (Math.round(n / mag) * mag).toLocaleString()
+}
+
 const rowsFor = (a: Body, b: Body): [string, string, string][] => [
   ['Diameter', a.stats.diameter, b.stats.diameter],
   ['Mass', a.stats.mass, b.stats.mass],
@@ -62,6 +70,10 @@ export function ComparePanel() {
   const b = bodyById(bId)!
   const maxD = Math.max(a.diameterKm, b.diameterKm)
   const px = (d: number) => 24 + (d / maxD) * 88
+
+  // Volume-based "how many fit inside" (diameter ratio cubed).
+  const [big, small] = a.diameterKm >= b.diameterKm ? [a, b] : [b, a]
+  const fitCount = Math.pow(big.diameterKm / small.diameterKm, 3)
 
   return (
     <div
@@ -92,6 +104,14 @@ export function ComparePanel() {
           <BodyColumn id={aId} onChange={setA} sizePx={px(a.diameterKm)} />
           <BodyColumn id={bId} onChange={setB} sizePx={px(b.diameterKm)} />
         </div>
+
+        {a.id !== b.id && (
+          <div className="mt-5 rounded-xl bg-gradient-to-r from-sky-500/10 to-indigo-500/10 px-4 py-3 text-center text-sm text-white/85 ring-1 ring-white/10">
+            {big.name} could hold about{' '}
+            <span className="font-semibold text-white">{formatCount(fitCount)}</span>{' '}
+            {small.name}-sized worlds inside it.
+          </div>
+        )}
 
         <div className="mt-6 divide-y divide-white/10">
           {rowsFor(a, b).map(([label, av, bv]) => (
