@@ -13,6 +13,10 @@ interface AppState {
   today: boolean
   /** Days offset from today for the date scrubber (0 = today). */
   dateOffsetDays: number
+  /** Show the faint orbit guide rings. */
+  showOrbits: boolean
+  /** Hide all interface overlays for a clean, immersive view. */
+  uiHidden: boolean
   /** Whether the narrated guided tour is running. */
   tour: boolean
 
@@ -27,6 +31,8 @@ interface AppState {
   toggleRealScale: () => void
   toggleToday: () => void
   setDateOffset: (days: number) => void
+  toggleOrbits: () => void
+  toggleUI: () => void
   startTour: () => void
   endTour: () => void
   openCompare: () => void
@@ -42,6 +48,8 @@ export const useStore = create<AppState>((set) => ({
   realScale: false,
   today: false,
   dateOffsetDays: 0,
+  showOrbits: true,
+  uiHidden: false,
   tour: false,
   compareOpen: false,
   compareA: 'earth',
@@ -53,6 +61,8 @@ export const useStore = create<AppState>((set) => ({
   toggleRealScale: () => set((s) => ({ realScale: !s.realScale })),
   toggleToday: () => set((s) => ({ today: !s.today, dateOffsetDays: 0 })),
   setDateOffset: (days) => set({ dateOffsetDays: days }),
+  toggleOrbits: () => set((s) => ({ showOrbits: !s.showOrbits })),
+  toggleUI: () => set((s) => ({ uiHidden: !s.uiHidden })),
   startTour: () => set({ tour: true }),
   endTour: () => set({ tour: false, selectedId: null, paused: false }),
   openCompare: () =>

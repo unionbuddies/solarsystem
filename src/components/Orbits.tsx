@@ -2,9 +2,11 @@ import { useMemo } from 'react'
 import { Line } from '@react-three/drei'
 import { MathUtils, Vector3 } from 'three'
 import { bodies } from '../data/bodies'
+import { useStore } from '../store'
 
 /** Faint guide rings tracing each planet's elliptical, inclined orbital path. */
 export function Orbits() {
+  const showOrbits = useStore((s) => s.showOrbits)
   const orbits = useMemo(() => {
     return bodies
       .filter((b) => b.type === 'planet')
@@ -28,6 +30,8 @@ export function Orbits() {
         }
       })
   }, [])
+
+  if (!showOrbits) return null
 
   return (
     <group>

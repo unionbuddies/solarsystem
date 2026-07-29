@@ -6,11 +6,12 @@ const DAY = 86_400_000
 export function DateScrubber() {
   const today = useStore((s) => s.today)
   const selectedId = useStore((s) => s.selectedId)
+  const uiHidden = useStore((s) => s.uiHidden)
   const offset = useStore((s) => s.dateOffsetDays)
   const setDateOffset = useStore((s) => s.setDateOffset)
 
   // Only in the overview, where you can watch the whole system shift.
-  if (!today || selectedId) return null
+  if (!today || selectedId || uiHidden) return null
 
   const date = new Date(Date.now() + offset * DAY)
   const label = date.toLocaleDateString(undefined, {
