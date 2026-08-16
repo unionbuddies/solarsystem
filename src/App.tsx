@@ -78,33 +78,35 @@ export default function App() {
 
       {/* Top-left: branding / navigation + tour & search */}
       <div className="pointer-events-none absolute left-0 top-0 flex max-w-[calc(100%-1.5rem)] flex-col gap-3 p-4 sm:p-6">
-        {/* Space Bound logo — links back to the parent project */}
-        <a
-          href="https://www.space-bound.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Visit Space Bound"
-          className="pointer-events-auto block w-fit opacity-90 transition duration-200 ease-out hover:-translate-y-0.5 hover:opacity-100"
-        >
-          <img
-            src={`${import.meta.env.BASE_URL}space-bound-logo.png`}
-            alt="Space Bound"
-            className="h-12 w-auto sm:h-14"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none'
-            }}
-          />
-        </a>
-
-        {/* Branding — stays visible even when the buttons are hidden */}
-        {!selectedId && (
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Solar System</h1>
+        {/* Space Bound logo + title, side by side (stays visible when buttons are hidden) */}
+        <div>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://www.space-bound.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Visit Space Bound"
+              className="pointer-events-auto block w-fit opacity-90 transition duration-200 ease-out hover:-translate-y-0.5 hover:opacity-100"
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}space-bound-logo.png`}
+                alt="Space Bound"
+                className="h-12 w-auto sm:h-14"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                }}
+              />
+            </a>
+            {!selectedId && (
+              <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Solar System</h1>
+            )}
+          </div>
+          {!selectedId && (
             <p className="mt-1 max-w-xs text-sm text-white/50">
               An interactive journey through the Sun and its eight planets.
             </p>
-          </div>
-        )}
+          )}
+        </div>
 
         {!uiHidden && (
           <>
